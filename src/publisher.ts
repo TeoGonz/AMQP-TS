@@ -1,27 +1,10 @@
-import amqp from 'amqplib';
+import { getChannel } from './rabbitmq';
 
-const queue = 'my_queue';
+const queue = 'mi_cola';
 
-async function sendMessage() {
-    try {
-        const connection = await amqp.connect({
-            hostname: 'localhost',
-            port: 5672,
-            username: 'MateoGonz',
-            password: 'astrocomet',
-        });
-        const channel = await connection.createChannel();
-        await channel.assertQueue(queue, { durable: true });
-        const message = 'Hola desde el Publisher!';
-        channel.sendToQueue(queue, Buffer.from(message));
-        console.log(`Mensaje enviado: ${message}`);
-        setTimeout(() => {
-            connection.close();
-            process.exit(0);
-        }, 500);
-    } catch (error) {
-        console.error('Error enviando mensaje:', error);
-    }
+export async function publishMessage(message: string): Promise<void> {
+    const channel = getChannel();
+    await channel.assertQueue(queue, { durable: true });
+    channel.sendToQueue(queue, Buffer.from(message), { persistent: true });
+    console.log(`Mensaje publicado: ${message}`);
 }
-
-sendMessage();
