@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   rabbitmq:
     image: rabbitmq:3.12
@@ -12,6 +10,29 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
 
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379" # Solo expone el puerto si es necesario
+    networks:
+      - redis_network
+    volumes:
+      - redis_data:/data
+    environment:
+      - REDIS_PASSWORD=astrosecurepassword # Variable de entorno para la contraseña
+    command: ["redis-server", "--requirepass", "astrosecurepassword"] # Comando para habilitar la contraseña
+    restart: always
+    # NOTA DE SEGURIDAD:
+    # export REDISCLI_AUTH=astrosecurepassword -> Establece la variable de entorno del servidor
+    # redis-cli -h redis -p 6379 -> Comando de acceso.
 volumes:
   rabbitmq_data:
     driver: local
+
+  redis_data:
+    driver: local
+
+networks:
+  redis_network:
+    driver: bridge # Definir la red para Redis

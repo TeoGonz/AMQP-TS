@@ -26,3 +26,8 @@ export function getChannel(): amqp.Channel {
     }
     return channel;
 }
+
+export async function closeConnection() {
+    await channel.close();
+    await connection.close();
+}
